@@ -22,7 +22,7 @@ class HomeControllerTest {
     void indexPageRendersLocalizedContent() throws Exception {
         mockMvc.perform(get("/").param("lang", "en"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("The depth of Japan that guidebooks never reach")));
+                .andExpect(content().string(containsString("THE DEPTH OF JAPAN THAT GUIDEBOOKS NEVER REACH")));
     }
 
     @Test
