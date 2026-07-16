@@ -18,6 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
     public LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
         slr.setDefaultLocale(Locale.JAPANESE); // ここを日本語（JAPANESE）に強制指定
+        slr.setLocaleAttributeName("lang");
         return slr;
     }
 
