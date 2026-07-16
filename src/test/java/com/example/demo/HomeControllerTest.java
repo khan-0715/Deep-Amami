@@ -38,4 +38,11 @@ class HomeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Local voices and everyday stories keep the community connected.")));
     }
+
+    @Test
+    void indexPageRendersJapaneseCopyForJapaneseLocale() throws Exception {
+        mockMvc.perform(get("/").param("lang", "ja"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("奄美のまだ見ぬ側面を発見する")));
+    }
 }
