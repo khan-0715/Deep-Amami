@@ -21,9 +21,11 @@
                 <p class="lead text-muted m-0 mt-1" th:text="#{system.subtitle}">Sharing the hidden depth of Japan through the lens of the island</p>
             </div>
             <div class="btn-group" role="group">
-                <a class="btn btn-outline-light btn-sm" th:href="@{/(lang='ja')}" th:text="#{nav.language.ja}">日本語</a>
-                <a class="btn btn-outline-light btn-sm" th:href="@{/(lang='en')}" th:text="#{nav.language.en}">English</a>
-            </div>
+    <a class="btn btn-outline-light btn-sm" href="?lang=ja">日本語</a>
+    <a class="btn btn-outline-light btn-sm" href="?lang=en">English</a>
+</div>
+ 
+            
         </div>
     </header>
 
