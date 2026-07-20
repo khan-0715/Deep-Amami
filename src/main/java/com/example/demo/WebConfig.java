@@ -1,38 +1,34 @@
-package com.example.demo;
+package com.example.demo; // 修正：パッケージを親フォルダと一致させました
 
+import java.util.Locale;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import java.util.Locale;
-
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    // 1. デフォルトの言語を「日本語」に固定し、セッションで管理する設定
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
-        slr.setDefaultLocale(Locale.JAPANESE); // ここを日本語（JAPANESE）に強制指定
-        slr.setLocaleAttributeName("lang");
+        slr.setDefaultLocale(Locale.JAPANESE);
         return slr;
     }
 
-    // 2. URLの「?lang=xx」を検知して言語を切り替えるインターセプターの設定
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang"); // URLのパラメーター名（?lang=）を指定
+        lci.setParamName("lang");
         return lci;
     }
 
-    // 3. 上記の設定をSpring Bootのシステムに登録する
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
     }
 }
