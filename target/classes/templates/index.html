@@ -14,7 +14,7 @@
         /* スクロール位置の余白調整 */
         div[id], section[id] { scroll-margin-top: 40px; }
 
-        /* ナビゲーション連動のズームアニメーション（初期レイアウトを壊さない設計） */
+        /* ナビゲーション連動のズームアニメーション */
         div:target > .card-custom,
         section:target > .card-custom {
             transform: scale(1.02);
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <!-- 1段目：メイン紹介カード ＆ タイムラインカード （横並び2列構成を完全再現） -->
+        <!-- 1段目：メイン紹介カード ＆ タイムラインカード  -->
         <div class="row g-4 mb-4">
             <!-- 左側：メインストーリーカード -->
             <div class="col-lg-7">
@@ -84,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- 右側：タイムラインカード（ナビゲーションターゲット用にidを設定） -->
+            <!-- 右側：タイムラインカード -->
             <div class="col-lg-5" id="timeline">
                 <div class="card card-custom p-4 bg-dark text-white h-100">
                     <h4 class="fw-bold mb-1" th:text="#{timeline.title}">Island Timeline</h4>
@@ -105,11 +105,11 @@
             </div>
         </div>
 
-        <!-- 2段目：記事管理セクション（横幅いっぱいの白いカスタムカード） -->
+        <!-- 2段目：記事管理セクション -->
         <section id="articles" class="mb-4">
             <div class="card card-custom p-4 bg-white">
                 <h3 class="fw-bold mb-3" th:text="#{nav.articles}">Articles</h3>
-                <!-- 3枚の記事を横並びにするグリッド（続きを読むボタンなし） -->
+                <!-- 3枚の記事を横並びにするグリッド -->
                 <div class="row g-3">
                     <div class="col-md-4" th:each="article : ${articles}">
                         <div class="p-3 bg-light rounded border border-light-subtle h-100">
@@ -164,20 +164,21 @@
                 </div>
             </div>
         </section>
-        <!-- 4段目：プライバシーポリシーセクション（コンプライアンス対応の中身） -->
+                <!-- 4段目：プライバシーポリシーセクション（多言語対応版） -->
         <section id="privacyPolicy" class="mb-4">
             <div class="card card-custom p-4 bg-white">
-                <h4 class="fw-bold mb-3">プライバシーポリシー (Privacy Policy)</h4>
+                <h4 class="fw-bold mb-3" th:text="#{privacy.title}">プライバシーポリシー (Privacy Policy)</h4>
                 <div class="text-secondary small" style="line-height: 1.6;">
-                    <p>当サイト（DEEP AMAMI）は、提供するサービスにおける利用者の個人情報の取扱いについて、以下の通り方針を定めます。</p>
+                    <p th:text="#{privacy.lead}">当サイト（DEEP AMAMI）は、提供するサービスにおける利用者の個人情報の取扱いについて、以下の通り方針を定めます。</p>
                     <hr class="my-3 border-light-subtle">
-                    <h6 class="fw-bold text-dark">1. 個人情報の取得と利用目的</h6>
-                    <p class="mb-3">当サイトでは、お問い合わせフォーム等を通じて取得した利用者の氏名やメールアドレス等の個人情報を、お問い合わせへの回答・連絡目的のみに利用し、他の目的には一切利用いたしません。</p>
-                    <h6 class="fw-bold text-dark">2. 第三者への開示・提供の禁止</h6>
-                    <p class="m-0">取得した個人情報は、法令に基づく場合を除き、利用者の同意を得ることなく第三者に開示・提供することは一切ありません。</p>
+                    <h6 class="fw-bold text-dark" th:text="#{privacy.h1}">1. 個人情報の取得と利用目的</h6>
+                    <p class="mb-3" th:text="#{privacy.p1}">当サイトでは、お問い合わせフォーム等を通じて取得した利用者の氏名やメールアドレス等の個人情報を、お問い合わせへの回答・連絡目的のみに利用し、他の目的には一切利用いたしません。</p>
+                    <h6 class="fw-bold text-dark" th:text="#{privacy.h2}">2. 第三者への開示・提供の禁止</h6>
+                    <p class="m-0" th:text="#{privacy.p2}">取得した個人情報は、法令に基づく場合を除き、利用者の同意を得ることなく第三者に開示・提供することは一切ありません。</p>
                 </div>
             </div>
         </section>
+
 
     </main>
 
@@ -189,7 +190,6 @@
             <a href="#privacyPolicy" class="text-decoration-none text-secondary me-3" th:text="#{footer.privacy}">プライバシーポリシー</a>
             <a href="https://forms.gle" target="_blank" class="text-decoration-none text-secondary" th:text="#{footer.contact}">お問い合わせ</a>
         </div>
-        <!-- 💡 &copy; を文字の「©」に直すことで、Thymeleafのエラーを100%完全に回避します -->
         <p class="m-0" th:text="#{footer.copyright}">© 2026 DEEP AMAMI</p>
     </div>
 </footer>
