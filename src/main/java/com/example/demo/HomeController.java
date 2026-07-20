@@ -17,25 +17,30 @@ public class HomeController {
 
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
     
-    // 1. 【バグ修正】OpenWeatherMapの正しいAPIエンドポイントURLに修正
     private static final String API_KEY = "YOUR_API_KEY";
     private static final String WEATHER_URL = "https://openweathermap.org" + API_KEY;
 
-    // Java 21のRecord型でシンプルな天気データ構造を定義
+    // Java 21のRecord型でシンプルなデータ構造を定義
     public record WeatherData(String icon, String description, double temp, int humidity, double wind) {}
+    // 💡【追加】記事用のデータ構造を定義
+    public record Article(Long id, String title, String category, String summary) {}
 
     @GetMapping("/")
     public String index(@RequestParam(value = "lang", required = false) String lang, Model model, Locale locale) {
         String language = (lang != null && !lang.isBlank()) ? lang : locale.getLanguage();
         log.info("Rendering home page for locale: {}", language);
 
-        // タイムライン投稿の取得
+        // 1. タイムライン投稿の取得
         List<TimelinePost> timelinePosts = createTimelinePosts(language);
         model.addAttribute("timelinePosts", timelinePosts);
 
-        // 外部API（OpenWeatherMap）から天気情報の取得
+        // 2. 外部API（OpenWeatherMap）から天気情報の取得
         WeatherData weather = fetchWeatherData();
         model.addAttribute("weather", weather);
+
+        // 💡【追加】3. 記事データの取得とモデルへの格納
+        List<Article> articles = createDummyArticles(language);
+        model.addAttribute("articles", articles);
 
         if (lang != null && !lang.isBlank()) {
             log.debug("Language override requested: {}", lang);
@@ -44,12 +49,26 @@ public class HomeController {
         return "index";
     }
 
-    // 2. 【警告解消】メソッドの直上に配置し、内部のキャスト警告を一括で完全に消去します
+    // 💡【追加】記事のダミーデータを生成するメソッド
+    private List<Article> createDummyArticles(String language) {
+        if ("en".equalsIgnoreCase(language)) {
+            return List.of(
+                new Article(1L, "Mystic Mangrove Forests", "Nature", "An immersive guide to kayaking through Amami's pristine mangrove sub-tropical ecosystems."),
+                new Article(2L, "The Art of Oshima Tsumugi", "Culture", "Exploring the 1,300-year history of mud-dyeing and the master weavers keeping the tradition alive."),
+                new Article(3L, "Traditional Keihan Rice Recipe", "Food", "Discover the rich history behind Amami's most celebrated chicken rice dish.")
+            );
+        }
+        return List.of(
+            new Article(1L, "神秘のマングローブ原生林", "自然", "奄美の亜熱帯エコシステムをカヤックで巡る完全ガイド。"),
+            new Article(2L, "大島紬を紡ぐ、泥染めの芸術", "文化", "1300年の歴史を持つ泥染めの伝統技術と、それを守る職人たちの物語。"),
+            new Article(3L, "伝統料理「鶏飯（けいはん）」のルーツ", "グルメ", "かつて薩摩藩の役人もてなしたとされる、奄美随一の郷土料理の歴史。")
+        );
+    }
+
     @SuppressWarnings("unchecked")
     private WeatherData fetchWeatherData() {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            // APIからMap形式でJSONレスポンスを受け取る
             Map<String, Object> response = restTemplate.getForObject(WEATHER_URL, Map.class);
 
             if (response != null) {
@@ -58,7 +77,6 @@ public class HomeController {
                 List<Map<String, Object>> weatherList = (List<Map<String, Object>>) response.get("weather");
                 Map<String, Object> weatherInfo = weatherList.get(0);
 
-                // アイコンコードを取得し、絵文字に変換
                 String iconCode = (String) weatherInfo.get("icon");
                 String iconEmoji = convertIconToEmoji(iconCode);
                 
@@ -72,20 +90,18 @@ public class HomeController {
         } catch (Exception e) {
             log.error("Failed to fetch weather data from OpenWeatherMap", e);
         }
-        // APIキーが無効、または通信エラーが起きた場合の安全なフォールバック（ダミーデータ）
         return new WeatherData("⛅", "Partly Cloudy", 28.5, 75, 4.2);
     }
 
-    // 天気アイコンコード（01d等）を分かりやすい絵文字に変換するユーティリティ
     private String convertIconToEmoji(String iconCode) {
         if (iconCode == null) return "☀️";
         return switch (iconCode.substring(0, 2)) {
-            case "01" -> "☀️"; // 晴れ
-            case "02", "03", "04" -> "☁️"; // 曇り
-            case "09", "10" -> "☔"; // 雨
-            case "11" -> "⚡"; // 雷
-            case "13" -> "❄️"; // 雪
-            case "50" -> "🌫️"; // 霧
+            case "01" -> "☀️";
+            case "02", "03", "04" -> "☁️";
+            case "09", "10" -> "☔";
+            case "11" -> "⚡";
+            case "13" -> "❄️";
+            case "50" -> "🌫️";
             default -> "☀️";
         };
     }
@@ -97,7 +113,6 @@ public class HomeController {
                     new TimelinePost(1002L, "Resident B", "The sunset over the sea was breathtaking.", LocalDateTime.now().minusHours(1)),
                     new TimelinePost(1003L, "Resident C", "More visitors are joining the local festival this year.", LocalDateTime.now().minusHours(3)));
         }
-
         return List.of(
                 new TimelinePost(1001L, "島民A", "朝市の新鮮な魚を見つけました。", LocalDateTime.now().minusMinutes(10)),
                 new TimelinePost(1002L, "島民B", "海辺の夕焼けが本当にきれいでした。", LocalDateTime.now().minusHours(1)),
