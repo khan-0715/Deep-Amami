@@ -9,13 +9,28 @@
         html { scroll-behavior: smooth; }
         body { font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif; background-color: #f8f9fa; }
         .hero-section { background-color: #1a252f; color: #ffffff; }
-        .card-custom { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        /* スクロール時に見出しがナビゲーションと被らないための余白 */
-        section { scroll-margin-top: 20px; }
+        .card-custom { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.4s ease; }
+        
+        /* スクロール位置の微調整 */
+        section { scroll-margin-top: 40px; }
+
+        /* 🔥 ズーム（強調）の仕組み（CSSアニメーション） */
+        section:target .card-custom {
+            transform: scale(1.03); /* ほんのり大きくズームアップ */
+            box-shadow: 0 10px 25px rgba(26, 37, 47, 0.15); /* 影を深くして浮かび上がらせる */
+            border: 2px solid #17a2b8; /* 枠線を光らせる（Bootstrapのinfoカラー） */
+            animation: pulse-highlight 1.5s ease-in-out;
+        }
+
+        @keyframes pulse-highlight {
+            0% { transform: scale(1); border-color: transparent; }
+            50% { transform: scale(1.04); border-color: #17a2b8; }
+            100% { transform: scale(1.03); border-color: #17a2b8; }
+        }
     </style>
 </head>
-<!-- 1. Topボタンの移動先として id="top" を配置 -->
 <body id="top">
+    <!-- ヘッダー部分はそのまま -->
     <header class="hero-section py-5 shadow-sm">
         <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-lg-start align-items-lg-center gap-3">
             <div>
@@ -31,6 +46,7 @@
     </header>
 
     <main class="container my-4">
+        <!-- ナビゲーションバー -->
         <div class="mb-4">
             <div class="btn-group bg-dark p-1 rounded" role="group">
                 <a href="#top" class="btn btn-dark btn-sm active" th:text="#{nav.top}">Top</a>
@@ -40,14 +56,13 @@
             </div>
         </div>
 
-        <!-- 既存の情報とタイムラインを1つのセクションとして配置 -->
-        <section class="row g-4 mb-5">
+        <!-- 既存コンテンツ（情報とタイムライン） -->
+        <section class="row g-4 mb-5" id="main-content">
             <div class="col-lg-7">
                 <div class="card card-custom p-4 bg-white h-100">
                     <span class="text-primary small fw-bold mb-2 d-block" th:text="#{info.tagline}">Discover the unseen side of Amami</span>
                     <h2 class="fw-bold mb-3" th:text="#{info.heading}">A living island story</h2>
                     <p class="text-secondary mb-4" th:text="#{info.description}">Explore the culture, people, and hidden rhythms that shape everyday life on Amami.</p>
-
                     <div class="row g-3">
                         <div class="col-md-6">
                             <h5 class="fw-bold" th:text="#{info.sec1.title}">Sea and Landscape</h5>
@@ -58,7 +73,6 @@
                             <p class="text-muted small" th:text="#{info.sec2.desc}">Local voices and everyday stories keep the community connected.</p>
                         </div>
                     </div>
-
                     <div class="mt-4">
                         <a href="#timeline" class="btn btn-dark me-2" th:text="#{btn.timeline}">See the timeline</a>
                     </div>
@@ -70,9 +84,7 @@
                     <h4 class="fw-bold mb-1" th:text="#{timeline.title}">Island Timeline</h4>
                     <p class="text-muted small mb-3" th:text="#{timeline.subtitle}">Follow recent posts and voices in a clean, simple view.</p>
                     <div class="overflow-auto" style="max-height: 400px;">
-                        <div th:if="${#lists.isEmpty(timelinePosts)}" class="alert alert-secondary mb-0" th:text="#{section.timeline.empty}">
-                            No posts yet.
-                        </div>
+                        <div th:if="${#lists.isEmpty(timelinePosts)}" class="alert alert-secondary mb-0" th:text="#{section.timeline.empty}">No posts yet.</div>
                         <div th:each="post : ${timelinePosts}" class="border-bottom border-secondary py-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold text-info" th:text="${post.author}">島民A</span>
@@ -85,21 +97,67 @@
             </div>
         </section>
 
-        <!-- 2. Articles（記事管理）セクションの受け皿を追加 -->
+        <!-- 記事管理セクション -->
         <section id="articles" class="mb-5">
             <div class="card card-custom p-4 bg-white">
                 <h3 class="fw-bold mb-3" th:text="#{nav.articles}">Articles</h3>
-                <p class="text-muted" th:text="#{section.articles.placeholder}">記事管理システムの内容がここに表示されます。</p>
+                <p class="text-secondary" th:text="#{section.articles.placeholder}">記事管理システムの内容がここに表示されます。</p>
             </div>
         </section>
 
-        <!-- 3. Data（データ管理）セクションの受け皿を追加 -->
+        <!-- データ管理セクション -->
+               <!-- データ管理セクション（天気情報を統合） -->
         <section id="data" class="mb-5">
             <div class="card card-custom p-4 bg-white">
-                <h3 class="fw-bold mb-3" th:text="#{nav.data}">Data</h3>
-                <p class="text-muted" th:text="#{section.data.placeholder}">データ管理システムの内容がここに表示されます。</p>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <h3 class="fw-bold m-0" th:text="#{nav.data}">Data</h3>
+                    <span class="badge bg-info text-dark" th:text="#{data.live.badge}">Live</span>
+                </div>
+                <p class="text-secondary mb-4" th:text="#{section.data.placeholder}">データ管理システムの内容がここに表示されます。</p>
+                
+                <!-- 天気情報表示エリア -->
+                <div class="bg-light rounded p-3 border border-light-subtle">
+                    <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-1">
+                         <span th:text="#{weather.title}">Amami Weather</span>
+                    </h5>
+                    
+                    <!-- 天気データが存在する場合にループ、またはオブジェクト表示 -->
+                    <div class="row g-3 text-center">
+                        <!-- 天気アイコン・概況 -->
+                        <div class="col-6 col-sm-3 border-end border-light-subtle">
+                            <div class="fs-1 text-primary">
+                                <!-- アイコン。データ未取得時は仮表示（晴れ） -->
+                                <span th:if="${weather == null}">☀️</span>
+                                <span th:if="${weather != null}" th:text="${weather.icon}">☀️</span>
+                            </div>
+                            <div class="small fw-bold text-muted mt-1" th:text="${weather != null ? weather.description : 'Clear Sky'}">Clear Sky</div>
+                        </div>
+                        <!-- 気温 -->
+                        <div class="col-6 col-sm-3 border-end-sm border-light-subtle">
+                            <div class="small text-muted mb-1" th:text="#{weather.temp}">Temperature</div>
+                            <div class="fs-4 fw-bold text-dark">
+                                <span th:text="${weather != null ? weather.temp : '28.5'}">28.5</span>&deg;C
+                            </div>
+                        </div>
+                        <!-- 湿度 -->
+                        <div class="col-6 col-sm-3 border-end border-light-subtle">
+                            <div class="small text-muted mb-1" th:text="#{weather.humidity}">Humidity</div>
+                            <div class="fs-4 fw-bold text-dark">
+                                <span th:text="${weather != null ? weather.humidity : '75'}">75</span>%
+                            </div>
+                        </div>
+                        <!-- 風速 -->
+                        <div class="col-6 col-sm-3">
+                            <div class="small text-muted mb-1" th:text="#{weather.wind}">Wind Speed</div>
+                            <div class="fs-4 fw-bold text-dark">
+                                <span th:text="${weather != null ? weather.wind : '4.2'}">4.2</span> m/s
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
+ 
     </main>
 
     <footer class="text-center py-4 text-muted small bg-white mt-5 border-top">
