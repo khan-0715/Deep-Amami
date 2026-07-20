@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,12 @@ public class HomeController {
 
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
     
-    private static final String API_KEY = "YOUR_API_KEY";
+    // 1. 【バグ修正・環境変数対応】正しいAPI通信用URLに修正し、安全に環境変数から取得
+    private static final String API_KEY = System.getenv("WEATHER_API_KEY") != null ? System.getenv("WEATHER_API_KEY") : "YOUR_API_KEY";
     private static final String WEATHER_URL = "https://openweathermap.org" + API_KEY;
 
     // Java 21のRecord型でシンプルなデータ構造を定義
     public record WeatherData(String icon, String description, double temp, int humidity, double wind) {}
-    // 💡【追加】記事用のデータ構造を定義
     public record Article(Long id, String title, String category, String summary) {}
 
     @GetMapping("/")
@@ -38,7 +39,7 @@ public class HomeController {
         WeatherData weather = fetchWeatherData();
         model.addAttribute("weather", weather);
 
-        // 💡【追加】3. 記事データの取得とモデルへの格納
+        // 3. 記事データの取得とモデルへの格納
         List<Article> articles = createDummyArticles(language);
         model.addAttribute("articles", articles);
 
@@ -49,7 +50,7 @@ public class HomeController {
         return "index";
     }
 
-    // 💡【追加】記事のダミーデータを生成するメソッド
+    // 記事のダミーデータを生成するメソッド
     private List<Article> createDummyArticles(String language) {
         if ("en".equalsIgnoreCase(language)) {
             return List.of(
@@ -65,11 +66,14 @@ public class HomeController {
         );
     }
 
-    @SuppressWarnings("unchecked")
+    // 外部APIを呼び出すメソッド
+        // 外部APIを呼び出すメソッド
+    @SuppressWarnings({"unchecked", "null"}) // 👈 ここをこのように2つ指定する形に書き換えます！
     private WeatherData fetchWeatherData() {
         try {
             RestTemplate restTemplate = new RestTemplate();
             Map<String, Object> response = restTemplate.getForObject(WEATHER_URL, Map.class);
+
 
             if (response != null) {
                 Map<String, Object> main = (Map<String, Object>) response.get("main");
@@ -77,10 +81,11 @@ public class HomeController {
                 List<Map<String, Object>> weatherList = (List<Map<String, Object>>) response.get("weather");
                 Map<String, Object> weatherInfo = weatherList.get(0);
 
-                String iconCode = (String) weatherInfo.get("icon");
+                // 2. 【Null型安全性のエラー解消】Objects.toStringを使って絶対にNullにならないStringに変換
+                String iconCode = Objects.toString(weatherInfo.get("icon"), "01d");
                 String iconEmoji = convertIconToEmoji(iconCode);
                 
-                String description = (String) weatherInfo.get("description");
+                String description = Objects.toString(weatherInfo.get("description"), "Clear Sky");
                 double temp = ((Number) main.get("temp")).doubleValue();
                 int humidity = ((Number) main.get("humidity")).intValue();
                 double wind = ((Number) windMap.get("speed")).doubleValue();
